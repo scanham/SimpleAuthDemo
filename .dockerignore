@@ -1,0 +1,6 @@
+obj
+bin
+README.md
+.gitignore
+.vscode
+Dockerfile

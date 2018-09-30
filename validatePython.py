@@ -1,0 +1,21 @@
+import jwt
+import requests
+import base64
+import json
+
+# Step 1: Get the key id from JWT headers (the kid field)
+encoded_jwt = 'eyJ0eXAiOiJKV1QiLCJraWQiOiJlMGJhNWNmYi1mMzI5LTQwYmYtODNkYi0xYjIwNmE1Y2YxOGMiLCJhbGciOiJFUzI1NiIsImlzcyI6Imh0dHBzOi8vZG93am9uZXMtZGVtby5hdXRoMC5jb20vIiwiY2xpZW50IjoiX2gxSk1DZU14a1Rsb2dvanBGUkxROWNwTmZMMjJHb0siLCJzaWduZXIiOiJhcm46YXdzOmVsYXN0aWNsb2FkYmFsYW5jaW5nOnVzLWVhc3QtMTo2MzAwODc2MTgwMDY6bG9hZGJhbGFuY2VyL2FwcC9kZW1vLWFwaS1hcHAvNjgwMzdkZjg1ZTgyYzgyNyIsImV4cCI6MTUzODE4MzE5MX0=.eyJzdWIiOiJhdXRoMHw1YmFiZmRiZTk2MzFhMzMyMWQ0ZjMxNjkiLCJuaWNrbmFtZSI6InNjb3R0LmNhbmhhbSIsIm5hbWUiOiJzY290dC5jYW5oYW1AZG93am9uZXMuY29tIiwicGljdHVyZSI6Imh0dHBzOi8vcy5ncmF2YXRhci5jb20vYXZhdGFyLzNlYjViYmI1MjZiYTNlY2E5NGU5MzM4YmJiMTI2YTM4P3M9NDgwJnI9cGcmZD1odHRwcyUzQSUyRiUyRmNkbi5hdXRoMC5jb20lMkZhdmF0YXJzJTJGc2MucG5nIiwidXBkYXRlZF9hdCI6IjIwMTgtMDktMjlUMDE6MDQ6MzAuOTk1WiIsImVtYWlsIjoic2NvdHQuY2FuaGFtQGRvd2pvbmVzLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZX0=.ld9gZOce9J0meKDwTsJydmaX--2rOChvWU7n768rj-wtxeUN0j3g90BjGl3LEDqXmivFpD5_P834Mt9Panz9xg=='
+jwt_headers = encoded_jwt.split('.')[0]
+decoded_jwt_headers = base64.b64decode(jwt_headers)
+decoded_json = json.loads(decoded_jwt_headers)
+kid = decoded_json['kid']
+
+# Step 2: Get the public key from regional endpoint
+url = 'https://public-keys.auth.elb.us-east-1.amazonaws.com/e0ba5cfb-f329-40bf-83db-1b206a5cf18c'
+req = requests.get(url)
+pub_key = req.text
+
+
+# Step 3: Get the payload
+payload = jwt.decode(encoded_jwt, pub_key, algorithms=['ES256'])
+print(payload)
