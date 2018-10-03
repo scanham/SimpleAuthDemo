@@ -82,7 +82,15 @@ namespace demo
                     ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
                     RequireSignedTokens = false,
-                    IssuerSigningKey = GetPublicKeyFromAmazon("e0ba5cfb-f329-40bf-83db-1b206a5cf18c")
+                    IssuerSigningKeyResolver = (string t, SecurityToken token, string kid, TokenValidationParameters validationParmaters) => {
+                        var key = GetPublicKeyFromAmazon(kid);
+                        if (key != null) 
+                        {
+                            return new SecurityKey[] {key};
+                        }
+                        return null;
+                    }
+                    //IssuerSigningKey = GetPublicKeyFromAmazon("e0ba5cfb-f329-40bf-83db-1b206a5cf18c")
                 };
             });
         }
@@ -111,8 +119,8 @@ namespace demo
         }
         private byte[] DownloadAndConvertKey(string keyId) 
         {
-            var client = new HttpClient() { BaseAddress = new Uri("https://public-keys.auth.elb.us-east-1.amazonaws.com/"), Timeout = TimeSpan.FromSeconds(5)};
-            var lines =  client.GetStringAsync(keyId).Result.Split(Environment.NewLine, StringSplitOptions.None);
+            // var client = new HttpClient() { BaseAddress = new Uri("https://public-keys.auth.elb.us-east-1.amazonaws.com/"), Timeout = TimeSpan.FromSeconds(5)};
+            var lines =  amazonKeyClient.GetStringAsync(keyId).Result.Split(Environment.NewLine, StringSplitOptions.None);
             return Convert.FromBase64String(lines[1] + lines[2]);
         }        
 
@@ -130,5 +138,7 @@ namespace demo
                 }
             }));
         }        
+
+        private static HttpClient amazonKeyClient = new HttpClient() { BaseAddress = new Uri("https://public-keys.auth.elb.us-east-1.amazonaws.com/"), Timeout = TimeSpan.FromSeconds(5)};
     }
 }
