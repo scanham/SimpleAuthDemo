@@ -57,6 +57,7 @@ namespace demo
                         var token = msg?.HttpContext?.Request?.Headers?["X-Amzn-Oidc-Data"];
                         if (!string.IsNullOrEmpty(token))
                         {
+                            Console.WriteLine(token);
                             msg.Token = token;
                         }
                         return Task.FromResult(0);
